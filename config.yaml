@@ -96,6 +96,9 @@ p: &p
   header:
       User-Agent:
       - "ClashMetaForAndroid/v2.11.26"
+  override:
+    udp: true
+
 
 proxy-providers:
   proxy1:
