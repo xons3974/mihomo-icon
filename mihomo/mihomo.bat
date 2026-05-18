@@ -32,12 +32,19 @@ if not errorlevel 1 goto RunningProxyMenu
 :RunningTun
 echo.
 echo  %C_GREEN%发现 Mihomo 正在运行 [当前状态: TUN 模式]%C_RESET%
-echo  %C_GREEN%正在关闭核心并恢复网络...%C_RESET%
-taskkill /F /IM "%MIHOMO_EXE%" >nul 2>&1
-call :DisableSystemProxy
 echo.
-echo  %C_GREEN%清理完成：Mihomo 已退出，TUN 模式已关闭！%C_RESET%
-timeout /t 1 >nul
+echo  %C_GREEN%--------------------------------------------------%C_RESET%
+echo  %C_GREEN% 请选择操作:%C_RESET%
+echo  %C_GREEN%  1. 切换代理    （仅接管系统代理，适合日常网页）%C_RESET%
+echo  %C_GREEN%  2. 彻底退出    （关闭核心，系统恢复直连）%C_RESET%
+echo  %C_GREEN%--------------------------------------------------%C_RESET%
+echo.
+rem 极致静默等待按键，连按下的数字都不显示
+powershell -NoProfile -Command "[Console]::TreatControlCAsInput=$true; $k=[Console]::ReadKey($true).KeyChar; if($k -eq '1'){exit 1}elseif($k -eq '2'){exit 2}else{exit 3}"
+
+if errorlevel 3 exit
+if errorlevel 2 goto StopProcess
+if errorlevel 1 goto SwitchToProxy
 exit
 
 
@@ -60,6 +67,13 @@ if errorlevel 1 goto SwitchToTun
 exit
 
 
+:SwitchToProxy
+echo.
+echo  %C_GREEN%正在关闭当前进程，准备切换至 系统代理 模式...%C_RESET%
+taskkill /F /IM "%MIHOMO_EXE%" >nul 2>&1
+goto ModeProxy
+
+
 :SwitchToTun
 echo.
 echo  %C_GREEN%正在关闭当前代理进程，准备切换至 TUN 模式...%C_RESET%
@@ -74,7 +88,7 @@ taskkill /F /IM "%MIHOMO_EXE%" >nul 2>&1
 echo  %C_GREEN%正在关闭系统代理...%C_RESET%
 call :DisableSystemProxy
 echo.
-echo  %C_GREEN%清理完成：Mihomo 已退出，系统代理已恢复直连！%C_RESET%
+echo  %C_GREEN%清理完成：Mihomo 已退出，网络已恢复直连！%C_RESET%
 timeout /t 1 >nul
 exit
 
